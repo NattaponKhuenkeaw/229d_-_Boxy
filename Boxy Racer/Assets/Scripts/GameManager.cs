@@ -1,5 +1,7 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -22,4 +24,11 @@ public class GameManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
     }
+    
+    public void Restart()
+    {
+        var activeScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(activeScene.name);
+    }
+
 }

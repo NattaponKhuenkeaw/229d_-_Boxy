@@ -19,6 +19,7 @@ public class AdvancePlayerController : MonoBehaviour
     private float horizontalInput = 0;
     private float forwardInput = 0;
     private bool isBraking = false;
+    private bool isGameOver = false;
     
     public GameManager gameManager;
 
@@ -28,6 +29,12 @@ public class AdvancePlayerController : MonoBehaviour
     }
     void Update()
     {
+        
+        if (isGameOver) 
+        {
+            currentSpeed = 0; // หยุดการเคลื่อนที่
+            return; // ออกจากฟังก์ชันเพื่อไม่ให้มีการรับอินพุต
+        }
         // [3] Get input values
         InputAction moveAction = InputSystem.actions.FindAction("Move");
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -92,9 +99,10 @@ public class AdvancePlayerController : MonoBehaviour
 
     public void OnCollisionEnter(Collision collision)
     {
-        if (gameObject.CompareTag("Bad"))
+        if (collision.gameObject.CompareTag("Bad"))
         {
             gameManager.gameOverPanel.SetActive(true);
+            isGameOver = true; // ตั้งค่าให้เกมหยุด
         }
     }
 }
