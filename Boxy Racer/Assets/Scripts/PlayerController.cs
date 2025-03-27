@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,7 @@ public class AdvancePlayerController : MonoBehaviour
     public float deceleration = 15.0f;
     public float turnSpeed = 180.0f;
     public float brakingForce = 20.0f;
+    public int score;
 
     // [2] Define the current state of the car
     [Header("Current State")]
@@ -17,7 +19,13 @@ public class AdvancePlayerController : MonoBehaviour
     private float horizontalInput = 0;
     private float forwardInput = 0;
     private bool isBraking = false;
+    
+    public GameManager gameManager;
 
+    void Start()
+    {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
     void Update()
     {
         // [3] Get input values
@@ -69,6 +77,24 @@ public class AdvancePlayerController : MonoBehaviour
             // Reduce turning at higher speeds
             turnAmount *= Mathf.Lerp(1.0f, 0.5f, Mathf.Abs(currentSpeed) / maxSpeed);
             transform.Rotate(Vector3.up, turnAmount);
+        }
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Good"))
+        {
+            gameManager.AddScore(score);
+            Destroy(other.gameObject);
+        }
+        
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (gameObject.CompareTag("Bad"))
+        {
+            gameManager.gameOverPanel.SetActive(true);
         }
     }
 }
