@@ -17,6 +17,9 @@ public class AdvancePlayerController : MonoBehaviour
     public ParticleSystem takeParticle;
     public AudioClip die;
     public AudioClip take;
+    public AudioClip win;
+    public AudioClip car; 
+    
 
     private AudioSource playerAudio;
     
@@ -41,11 +44,15 @@ public class AdvancePlayerController : MonoBehaviour
 
     void Start()
     {
+        
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.W)) 
+        {
+            
+        }
         if (isGameStop) 
         {
             currentSpeed = 0; // หยุดการเคลื่อนที่
@@ -122,8 +129,10 @@ public class AdvancePlayerController : MonoBehaviour
         
         if (other.gameObject.CompareTag("Win"))
         {
-            Debug.Log("Game Win");
+            gameManager.gameWinPanel.SetActive(true);
             isGameStop = true;
+            playerAudio.PlayOneShot(win);
+            GameObject.FindGameObjectWithTag("MainCamera").GetComponent<AudioSource>().Stop();
         }
         
     }
