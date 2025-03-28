@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,6 +13,16 @@ public class AdvancePlayerController : MonoBehaviour
     public float turnSpeed = 180.0f;
     public float brakingForce = 20.0f;
     public int score;
+    public ParticleSystem dieParticle;
+    public ParticleSystem takeParticle;
+    public AudioClip die;
+    public AudioClip take;
+
+    private AudioSource playerAudio;
+    
+        
+
+    
 
     // [2] Define the current state of the car
     [Header("Current State")]
@@ -19,9 +30,14 @@ public class AdvancePlayerController : MonoBehaviour
     private float horizontalInput = 0;
     private float forwardInput = 0;
     private bool isBraking = false;
-    private bool isGameOver = false;
+    private bool isGameStop = false;
     
-    public GameManager gameManager;
+    private GameManager gameManager;
+
+    private void Awake()
+    {
+        playerAudio = GetComponent<AudioSource>();
+    }
 
     void Start()
     {
@@ -30,7 +46,7 @@ public class AdvancePlayerController : MonoBehaviour
     void Update()
     {
         
-        if (isGameOver) 
+        if (isGameStop) 
         {
             currentSpeed = 0; // หยุดการเคลื่อนที่
             return; // ออกจากฟังก์ชันเพื่อไม่ให้มีการรับอินพุต
@@ -85,14 +101,29 @@ public class AdvancePlayerController : MonoBehaviour
             turnAmount *= Mathf.Lerp(1.0f, 0.5f, Mathf.Abs(currentSpeed) / maxSpeed);
             transform.Rotate(Vector3.up, turnAmount);
         }
+
+        if  (Input.GetKeyDown(KeyCode.R))
+        {
+            gameManager.gameOverPanel.SetActive(true);
+            
+        }
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Good"))
         {
+            
             gameManager.AddScore(score);
             Destroy(other.gameObject);
+            takeParticle.Play();
+            playerAudio.PlayOneShot(take);
+        }
+        
+        if (other.gameObject.CompareTag("Win"))
+        {
+            Debug.Log("Game Win");
+            isGameStop = true;
         }
         
     }
@@ -101,8 +132,11 @@ public class AdvancePlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Bad"))
         {
+            dieParticle.Play();
             gameManager.gameOverPanel.SetActive(true);
-            isGameOver = true; // ตั้งค่าให้เกมหยุด
+            isGameStop = true;
+            playerAudio.PlayOneShot(die);
+            // ตั้งค่าให้เกมหยุด
         }
     }
 }
