@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,6 +21,8 @@ public class AdvancePlayerController : MonoBehaviour
     public AudioClip take;
     public AudioClip win;
     private bool isPaused = false;
+   
+    
 
      
     
@@ -127,11 +131,13 @@ public class AdvancePlayerController : MonoBehaviour
         
         if (other.gameObject.CompareTag("Win"))
         {
+            
             gameManager.isGameStop = true;
             gameManager.gameWinPanel.SetActive(true);
             playerAudio.PlayOneShot(win);
             GameObject.FindGameObjectWithTag("MainCamera").GetComponent<AudioSource>().Stop();
-            gameManager.TogglePause();
+            Time.timeScale = 0f;
+            
             
         }
         
@@ -145,10 +151,19 @@ public class AdvancePlayerController : MonoBehaviour
             dieParticle.Play();
             gameManager.gameOverPanel.SetActive(true);
             playerAudio.PlayOneShot(die);
-            gameManager.TogglePause();
+            currentSpeed = 0;
+            
+            StartCoroutine(DelayBeforePause(1f));
             
             
         }
     }
+    
+    IEnumerator DelayBeforePause(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        gameManager.TogglePause();
+    }
+    
 }
 
