@@ -18,7 +18,9 @@ public class AdvancePlayerController : MonoBehaviour
     public AudioClip die;
     public AudioClip take;
     public AudioClip win;
-    public AudioClip car; 
+    private bool isPaused = false;
+
+     
     
 
     private AudioSource playerAudio;
@@ -33,7 +35,9 @@ public class AdvancePlayerController : MonoBehaviour
     private float horizontalInput = 0;
     private float forwardInput = 0;
     private bool isBraking = false;
-    private bool isGameStop = false;
+    
+    
+    
     
     private GameManager gameManager;
 
@@ -49,15 +53,14 @@ public class AdvancePlayerController : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W)) 
+        
+        if (Input.GetKeyDown(KeyCode.Escape) && !gameManager.isGameStop)
         {
             
+            gameManager.TogglePause();
+            
         }
-        if (isGameStop) 
-        {
-            currentSpeed = 0; // หยุดการเคลื่อนที่
-            return; // ออกจากฟังก์ชันเพื่อไม่ให้มีการรับอินพุต
-        }
+        
         // [3] Get input values
         InputAction moveAction = InputSystem.actions.FindAction("Move");
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -108,13 +111,8 @@ public class AdvancePlayerController : MonoBehaviour
             turnAmount *= Mathf.Lerp(1.0f, 0.5f, Mathf.Abs(currentSpeed) / maxSpeed);
             transform.Rotate(Vector3.up, turnAmount);
         }
-
-        if  (Input.GetKeyDown(KeyCode.R))
-        {
-            gameManager.gameOverPanel.SetActive(true);
-            
-        }
     }
+    
 
     public void OnTriggerEnter(Collider other)
     {
@@ -129,10 +127,12 @@ public class AdvancePlayerController : MonoBehaviour
         
         if (other.gameObject.CompareTag("Win"))
         {
+            gameManager.isGameStop = true;
             gameManager.gameWinPanel.SetActive(true);
-            isGameStop = true;
             playerAudio.PlayOneShot(win);
             GameObject.FindGameObjectWithTag("MainCamera").GetComponent<AudioSource>().Stop();
+            gameManager.TogglePause();
+            
         }
         
     }
@@ -141,11 +141,13 @@ public class AdvancePlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Bad"))
         {
+            gameManager.isGameStop = true;
             dieParticle.Play();
             gameManager.gameOverPanel.SetActive(true);
-            isGameStop = true;
             playerAudio.PlayOneShot(die);
-            // ตั้งค่าให้เกมหยุด
+            gameManager.TogglePause();
+            
+            
         }
     }
 }
