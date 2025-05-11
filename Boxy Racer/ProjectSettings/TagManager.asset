@@ -8,6 +8,7 @@ TagManager:
   - Good
   - Bad
   - Win
+  - Road
   layers:
   - Default
   - TransparentFX
