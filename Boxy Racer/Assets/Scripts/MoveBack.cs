@@ -2,26 +2,14 @@ using UnityEngine;
 
 public class MoveBack : MonoBehaviour
 {
-    public float speed = 10f;
+    public float speed;
+    private float leftBound = -15f;
 
-    private float leftBound = -15;
-
-    private PlayerController playerController;
-
-    void Start()
-    {
-        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        if (!PlayerController.isGameOver)
-        {
-            transform.Translate(Vector3.back * Time.deltaTime * speed);
-        }
+        transform.Translate(Vector3.back * speed * Time.deltaTime);
 
-        if (transform.position.z < leftBound && !CompareTag("Road"))
+        if (transform.position.z < leftBound)
         {
             Destroy(gameObject);
         }

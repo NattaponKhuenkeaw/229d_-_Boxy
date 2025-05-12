@@ -4,6 +4,8 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+
 
 public class PlayerController : MonoBehaviour
 {
@@ -20,6 +22,11 @@ public class PlayerController : MonoBehaviour
     public static bool isGameOver = false;
     private AudioSource playerAudio;
     private float horizontalInput = 0;
+    public float speedIncreasePerWave = 2f;
+    public int hp = 3;
+    private int currentHp;
+    public Image[] hearts;
+
 
 
     private GameManager gameManager;
@@ -56,63 +63,7 @@ public class PlayerController : MonoBehaviour
         }
 
         
-        // if (Input.GetKeyDown(KeyCode.Escape) && !gameManager.isGameStop)
-        // {
-        //     
-        //     gameManager.TogglePause();
-        //     
-        // }
-        //
-        // // [3] Get input values
-        // InputAction moveAction = InputSystem.actions.FindAction("Move");
-        // Vector2 input = moveAction.ReadValue<Vector2>();
-        // horizontalInput = input.x;
-        // forwardInput = input.y;
-        //
-        // // [4] Handle braking
-        // isBraking = Input.GetKey(KeyCode.Space);
-        //
-        // // [5] Apply acceleration/deceleration
-        // // and Calculate currentSpeed
-        // if (forwardInput != 0)
-        // {
-        //     // [6] Apply acceleration to currentSpeed
-        //     currentSpeed += forwardInput * acceleration * Time.deltaTime;
-        // }
-        // else
-        // {
-        //     // [7] Natural deceleration when no input
-        //     float decelAmount = deceleration * Time.deltaTime;
-        //     if (Mathf.Abs(currentSpeed) <= decelAmount)
-        //         currentSpeed = 0;
-        //     else
-        //         currentSpeed -= Mathf.Sign(currentSpeed) * decelAmount;
-        // }
-        //
-        // // [8] Apply braking
-        // if (isBraking)
-        // {
-        //     float brakeAmount = brakingForce * Time.deltaTime;
-        //     if (Mathf.Abs(currentSpeed) <= brakeAmount)
-        //         currentSpeed = 0;
-        //     else
-        //         currentSpeed -= Mathf.Sign(currentSpeed) * brakeAmount;
-        // }
-        //
-        // // [9] Clamp speed
-        // currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
-        //
-        // // [10] **Apply movement**
-        // transform.Translate(currentSpeed * Time.deltaTime * Vector3.forward);
-        //
-        // // [11] Apply steering (only when moving)
-        // if (Mathf.Abs(currentSpeed) > 0.1f)
-        // {
-        //     float turnAmount = horizontalInput * turnSpeed * Time.deltaTime;
-        //     // Reduce turning at higher speeds
-        //     turnAmount *= Mathf.Lerp(1.0f, 0.5f, Mathf.Abs(currentSpeed) / maxSpeed);
-        //     transform.Rotate(Vector3.up, turnAmount);
-        // }
+        
     }
     
 
@@ -120,47 +71,54 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Good"))
         {
-            
             gameManager.AddScore(score);
             Destroy(other.gameObject);
             takeParticle.Play();
             playerAudio.PlayOneShot(take);
-        }
-        
-        if (other.gameObject.CompareTag("Win"))
-        {
-            
-            gameManager.isGameStop = true;
-            gameManager.gameWinPanel.SetActive(true);
-            playerAudio.PlayOneShot(win);
-            GameObject.FindGameObjectWithTag("MainCamera").GetComponent<AudioSource>().Stop();
-            Time.timeScale = 0f;
-            
             
         }
-        
-    }
-
-    public void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Bad"))
+        if (other.gameObject.CompareTag("Bad") && !isGameOver)
         {
-            isGameOver = true;
-            dieParticle.Play();
-            gameManager.gameOverPanel.SetActive(true);
+            
+            Destroy(other.gameObject);
             playerAudio.PlayOneShot(die);
-            
-            
-            StartCoroutine(DelayBeforePause(1f));
-            
-            
+            dieParticle.Play();
+            TakeDamage();
         }
+        
+        
     }
     
-    IEnumerator DelayBeforePause(float delayTime)
+    public void IncreaseSpeedByWave(int wave)
     {
-        yield return new WaitForSeconds(delayTime);
-        gameManager.TogglePause();
+        maxSpeed += speedIncreasePerWave;
+        Debug.Log($"Player speed increased! New speed: {maxSpeed}");
+    }
+
+
+
+    void TakeDamage()
+    {
+        hp --;
+
+        if (hp >= 0 && currentHp < hearts.Length)
+        {
+            hearts[currentHp].enabled = false;
+        }
+
+        if (currentHp <= 0 && !isGameOver)
+        {
+            
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        isGameOver = true;
+        gameManager.gameOverPanel.SetActive(true);
+        playerAudio.PlayOneShot(win);
+        Time.timeScale = 0f;
     }
     
 }
