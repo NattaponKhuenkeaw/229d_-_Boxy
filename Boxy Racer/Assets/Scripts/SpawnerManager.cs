@@ -1,6 +1,6 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public class SpawnerManager : MonoBehaviour
@@ -18,17 +18,20 @@ public class SpawnerManager : MonoBehaviour
     public float boxSpawnInterval = 2f;
     public int boxesPerWave = 10;
 
+    [Header("Wave Settings")]
+    public float waveDelay = 3f;
+    public float speedOfSpawn = 0.5f;
+
+    [Header("References")]
+    public PlayerController player;
+    public GameObject roadPrefab;
+    public TextMeshProUGUI scoreText;
+
     private HashSet<Transform> occupiedSpawnPoints = new HashSet<Transform>();
     private int currentWave = 0;
     private int collectedBoxes = 0;
     private float currentEnemySpeed;
-    
-    public float waveDelay = 3f; 
-    public PlayerController player;
     private bool isWaitingForWave = false;
-    public GameObject roadPrefab;
-    public float speedOfSpawn = 0.5f;
-    public TextMeshProUGUI scoreText;
 
     void Start()
     {
@@ -39,13 +42,13 @@ public class SpawnerManager : MonoBehaviour
 
     void Update()
     {
-        if (collectedBoxes == boxesPerWave  && !isWaitingForWave)
+        if (collectedBoxes == boxesPerWave && !isWaitingForWave)
         {
             StartCoroutine(StartNewWaveWithDelay());
             collectedBoxes = 0;
         }
 
-        if (int.TryParse(scoreText.text, out int score) && score == 50) 
+        if (int.TryParse(scoreText.text, out int score) && score == 50)
         {
             boxesPerWave = 10 + (score / 50) * 5;
         }
@@ -53,8 +56,6 @@ public class SpawnerManager : MonoBehaviour
 
     private void SpawnEnemies()
     {
-        
-
         occupiedSpawnPoints.Clear();
 
         int spawnCount = Mathf.Min(Random.Range(1, maxSpawnPerWave + 1), spawnPoints.Length);
@@ -69,9 +70,11 @@ public class SpawnerManager : MonoBehaviour
             availableSpawns.RemoveAt(randomIndex);
 
             occupiedSpawnPoints.Add(spawnPoint);
+
             int randomEnemyIndex = Random.Range(0, enemyPrefabs.Length);
             GameObject selectedEnemyPrefab = enemyPrefabs[randomEnemyIndex];
             GameObject enemy = Instantiate(selectedEnemyPrefab, spawnPoint.position, selectedEnemyPrefab.transform.rotation);
+
             MoveBack movement = enemy.GetComponent<MoveBack>();
             if (movement != null)
             {
@@ -97,6 +100,7 @@ public class SpawnerManager : MonoBehaviour
 
         GameObject box = Instantiate(boxPrefab, selectedSpawn.position, Quaternion.identity);
         collectedBoxes++;
+
         Box boxScript = box.GetComponent<Box>();
         if (boxScript != null)
         {
@@ -104,35 +108,22 @@ public class SpawnerManager : MonoBehaviour
         }
     }
 
-    
-    
-        
-    
-
-    private void StartNewWave()
-    {
-        currentWave++;
-        currentEnemySpeed += speedIncreasePerWave;
-        Debug.Log($"Wave {currentWave} started! Enemy speed: {currentEnemySpeed}");
-    }
-    
     private IEnumerator StartNewWaveWithDelay()
     {
         isWaitingForWave = true;
         Debug.Log($"Wave {currentWave + 1} will start in {waveDelay} seconds...");
-        
+
         MoveBack roadScript = roadPrefab.GetComponent<MoveBack>();
         if (roadScript != null)
         {
-            roadScript.speed = currentEnemySpeed ;
+            roadScript.speed = currentEnemySpeed;
         }
 
-        CancelInvoke(nameof(SpawnEnemies)); // หยุด spawn ศัตรูระหว่างรอ wave
+        CancelInvoke(nameof(SpawnEnemies));
         CancelInvoke(nameof(SpawnBox));
 
         yield return new WaitForSeconds(waveDelay);
-        
-        
+
         currentWave++;
         currentEnemySpeed += speedIncreasePerWave;
         Debug.Log($"Wave {currentWave} started! Enemy speed: {currentEnemySpeed}");
@@ -143,11 +134,9 @@ public class SpawnerManager : MonoBehaviour
         }
 
         spawnInterval = Mathf.Max(0.75f, spawnInterval - speedOfSpawn);
-
         InvokeRepeating(nameof(SpawnEnemies), 0f, spawnInterval);
         InvokeRepeating(nameof(SpawnBox), 0f, spawnInterval);
-        // เรียกกลับมาใหม่
+
         isWaitingForWave = false;
     }
-
 }

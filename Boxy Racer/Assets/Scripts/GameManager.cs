@@ -7,44 +7,39 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     
-    public TextMeshProUGUI scoreText;
-   // public TextMeshProUGUI scoreTextWin;
     public int score = 0;
-    public GameObject gameOverPanel;
-    
-    
+    public int highScore ;
 
-    
+    public GameObject gameOverPanel;
 
     void Start()
     {
         gameOverPanel.SetActive(false);
-    }
-    public  void AddScore(int score1)
-    {
-        score += score1;
-        scoreText.text = this.score.ToString();
-        //scoreTextWin.text = this.score.ToString();
-       
+        highScore = PlayerPrefs.GetInt("HighScore", 0);
     }
 
-    public void GameOver()
+    public void AddScore(int score1)
     {
-        gameOverPanel.SetActive(true);
+        score += score1;
+        if (score > highScore)
+        {
+            highScore = score;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+            
+        }
     }
     
     public void Restart()
     {
         
-        SceneManager.LoadScene(1);
-        
-        
-        
+        SceneManager.LoadScene(0);
     }
+
     public void Quit()
     {
-            Application.Quit(); 
-            Debug.Log("Game is exiting..."); 
+        Application.Quit();
+        Debug.Log("Game is exiting...");
     }
-   
 }
+

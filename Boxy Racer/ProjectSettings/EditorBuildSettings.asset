@@ -8,9 +8,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/StartGame.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ingame.unity
     guid: 1bf606580d2ac644abe9ec2459a2e043
+  - enabled: 1
+    path: Assets/Scenes/ingame2.unity
+    guid: 6e4e498db1b08ec4d91a77d1cdeb97b2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_UseUCBPForAssetBundles: 0
